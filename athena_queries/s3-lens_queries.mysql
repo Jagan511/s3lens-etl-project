@@ -1,0 +1,66 @@
+--Total Orders by City
+SELECT c.city, COUNT(o.order_id) AS total_orders
+FROM s3lens_orders o
+JOIN s3lens_customers c ON o.customer_id = c.customer_id
+GROUP BY c.city
+ORDER BY total_orders DESC;
+
+--Top 5 Expensive Products
+SELECT product_name, category, price
+FROM s3lens_products
+ORDER BY price DESC
+LIMIT 5;
+
+--Total Quantity and Revenue by Product
+SELECT p.product_name, SUM(o.quantity) AS total_sold, ROUND(SUM(o.quantity * p.price), 2) AS total_revenue
+FROM s3lens_orders o
+JOIN s3lens_products p ON o.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_revenue DESC;
+
+--Top 3 Customers by Spending
+WITH customer_spending AS (
+  SELECT c.name, round(SUM(o.quantity * p.price),2) AS total_spent
+  FROM s3lens_orders o
+  JOIN s3lens_customers c ON o.customer_id = c.customer_id
+  JOIN s3lens_products p ON o.product_id = p.product_id
+  GROUP BY c.name
+)
+SELECT * FROM customer_spending
+ORDER BY total_spent DESC
+LIMIT 3;
+
+--Orders Per Month
+SELECT 
+  date_format(CAST(order_date AS DATE), '%Y-%m') AS month,
+  COUNT(order_id) AS total_orders
+FROM s3lens_orders
+GROUP BY date_format(CAST(order_date AS DATE), '%Y-%m')
+ORDER BY month;
+
+SELECT 
+  o.order_id,
+  CAST(o.order_date AS DATE) AS order_date,
+  c.city,
+  p.product_name,
+  p.price,
+  o.quantity,
+  round((o.quantity * p.price),2) AS total_revenue
+FROM s3lens_orders o
+JOIN s3lens_customers c ON o.customer_id = c.customer_id
+JOIN s3lens_products p ON o.product_id = p.product_id
+LIMIT 10;
+
+CREATE OR REPLACE VIEW s3lens_orders_view AS
+SELECT 
+  o.order_id,
+  o.order_date,
+  CAST(o.order_date AS DATE) AS clean_order_date,
+  c.city,
+  p.product_name,
+  p.price,
+  o.quantity,
+  round((o.quantity * p.price),2) AS total_revenue
+FROM s3lens_orders o
+JOIN s3lens_customers c ON o.customer_id = c.customer_id
+JOIN s3lens_products p ON o.product_id = p.product_id;

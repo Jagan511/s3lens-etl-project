@@ -1,0 +1,48 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS s3lens_orders (
+  order_id STRING,
+  customer_id STRING,
+  product_id STRING,
+  quantity int,
+  order_date STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+  "separatorChar" = ",",
+  "quoteChar" = "\""
+)
+LOCATION 's3://s3-lens-project/output/orders/'
+TBLPROPERTIES ('skip.header.line.count' = '1');
+
+select * from s3lens_orders limit 5;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS s3lens_products (
+  product_id STRING,
+  product_name STRING,
+  category STRING,
+  price DOUBLE
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+  "separatorChar" = ",",
+  "quoteChar" = "\""
+)
+LOCATION 's3://s3-lens-project/output/products/'
+TBLPROPERTIES ('skip.header.line.count' = '1');
+
+select * from s3lens_products limit 5;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS s3lens_customers (
+  customer_id STRING,
+  name STRING,
+  email STRING,
+  city STRING
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+  "separatorChar" = ",",
+  "quoteChar" = "\""
+)
+LOCATION 's3://s3-lens-project/output/customers/'
+TBLPROPERTIES ('skip.header.line.count' = '1');
+
+select * from s3lens_customers limit 5;
